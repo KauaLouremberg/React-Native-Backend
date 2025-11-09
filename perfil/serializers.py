@@ -1,12 +1,14 @@
 from rest_framework import serializers
-from .models import Usuario
+from .models import Perfil, Endereco
+
 
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Usuario
-        fields = ['id', 'perfil', 'usuario', 'cpf']
+        model = Perfil
+        fields = ['id', 'cpf', 'data_nascimento', 'sexo', 'tipo_conta']
+        read_only_fields = ['usuario']
 
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Usuario
+        model = Endereco
         fields = ['id', 'cidade', 'bairro', 'estado']

@@ -7,7 +7,7 @@ class Usuario(models.Model):
         ('moderador', 'Moderador'),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
     perfil = models.CharField(max_length=20, choices=ROLE_CHOICES, default='usuario')
     nome = models.CharField(max_length=150, blank=True, null=True)
 

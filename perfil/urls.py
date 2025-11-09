@@ -1,8 +1,7 @@
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .views import PerfilViewSet, EnderecoViewSet
 
-router = DefaultRouter()
-router.register(r'perfil', PerfilViewSet)
-router.register(r'endereco', EnderecoViewSet)
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('perfil/', PerfilViewSet.as_view(), name='perfil'),
+    path('endereco/', EnderecoViewSet.as_view(), name='endereco'),
+]
