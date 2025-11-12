@@ -1,4 +1,5 @@
 from django.db import models
+
 from autenticacao.models import Usuario
 
 
@@ -27,4 +28,9 @@ class Endereco(models.Model):
     bairro = models.CharField(max_length=255, blank=True, null=True)
     rua = models.CharField(max_length=255, blank=True, null=True)
     numero = models.CharField(max_length=20, blank=True, null=True)
+
+class Responsavel(models.Model):
+    amparado = models.ForeignKey('amparado.Amparado', on_delete=models.CASCADE, related_name="amparado_responsavel")
+    perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name="perfil_responsavel")
+
 

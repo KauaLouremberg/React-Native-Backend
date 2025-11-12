@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Perfil, Endereco
+from .models import Perfil, Endereco, Responsavel
 
 
 class PerfilSerializer(serializers.ModelSerializer):
@@ -12,3 +12,8 @@ class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
         fields = ['id', 'cidade', 'bairro', 'estado']
+
+class ResponsavelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Responsavel
+        fields = '__all__'
