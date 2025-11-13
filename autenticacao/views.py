@@ -1,11 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
+from .serializers import CustomTokenObtainPairSerializer, UserCreateSerializer
 
 class UsuarioView(APIView):
     permission_classes = [IsAuthenticated]
@@ -27,3 +27,18 @@ class UsuarioView(APIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class CreateUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        serializer = UserCreateSerializer(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+            return Response({"Sucesso!": {f"Usuario Criado com Sucesso!"}})
+
+        return Response({"Erro!": "Ocorreu um erro ao criar o usuario!"})
+

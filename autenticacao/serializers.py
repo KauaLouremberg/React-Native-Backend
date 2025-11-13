@@ -1,6 +1,9 @@
 from .models import Usuario
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
+User = get_user_model()
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +19,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         criar, _ = Usuario.objects.update_or_create(user=self.user, nome=self.user.username)
         return data
+
+class UserCreateSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True)
+    is_superuser = serializers.BooleanField(default=False)
+
+    def create(self, validated_data):
+        is_super = validated_data.pop("is_superuser")
+
+        if is_super:
+            user = User.objects.create_superuser(**validated_data)
+        else:
+            user = User.objects.create_user(**validated_data)
+
+        return user
+
