@@ -8,6 +8,7 @@ urlpatterns = [
 
     path('api/', include('autenticacao.urls')),
     path('api/', include('perfil.urls')),
+    path('api/', include('amparado.urls'))
 ]
 
 if settings.DEBUG:
