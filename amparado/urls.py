@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import AmparadoViewSet, AmparadoCodigoViewSet
+from .views import AmparadoView, AmparadoCodigoView
 
 urlpatterns = [
-    path('amparado/', AmparadoViewSet.as_view(), name='amparado'),
-    path('ampcodigo/', AmparadoCodigoViewSet.as_view(), name='codamparado')
+    path('amparado/', AmparadoView.as_view(), name='amparado'),
+    path('ampcodigo/', AmparadoCodigoView.as_view(), name='codamparado')
 ]

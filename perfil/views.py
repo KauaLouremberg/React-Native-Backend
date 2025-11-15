@@ -26,6 +26,14 @@ class PerfilViewSet(APIView):
 
         perfil, _ = Perfil.objects.get_or_create(usuario=user)
 
+        if data.get("tipo_conta") == "A":
+            responsavel = Responsavel.objects.get(perfil=perfil)
+            if responsavel:
+                print("caiu aqui")
+                pass
+            else:
+                Responsavel.objects.create(perfil=perfil)
+
         serializer = PerfilSerializer(perfil, data=data, partial=True)
         if serializer.is_valid():
             serializer.save(usuario=user)
@@ -37,14 +45,8 @@ class PerfilViewSet(APIView):
 class EnderecoViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self):
-        print('teste')
-
 class ResponsavelViewSet(APIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self):
-        print('teste')
 
     def post(self, request):
         user = Usuario.objects.get(user=request.user)

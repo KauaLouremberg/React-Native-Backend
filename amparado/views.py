@@ -1,18 +1,37 @@
 import uuid
 
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from amparado.models import Amparado
+from autenticacao.models import Usuario
+from autenticacao.serializers import UserCreateSerializer
 
-
-class AmparadoViewSet(APIView):
+class AmparadoView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self):
-        print('teste')
+        return Response({"msg": "GET OK"})
 
+    def post(self, request):
+        data = request.data
+        serializer = UserCreateSerializer(data=data)
 
-class AmparadoCodigoViewSet(APIView):
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            Usuario.objects.create(
+                user=user,
+                nome=user.username,
+                is_amparado=True
+            )
+
+            return Response({"Sucesso!": "Amparado Criado com Sucesso!"})
+
+        return Response({"Error!": "Algo deu Errado!"})
+
+class AmparadoCodigoView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         id = str(uuid.uuid4())[:8].upper()
@@ -21,7 +40,7 @@ class AmparadoCodigoViewSet(APIView):
         amparado.codigo_convite = id
         amparado.save()
 
-        return Response(id)
+        return Response({"ID:": f"{id}"})
 
 
 
