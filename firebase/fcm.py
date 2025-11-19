@@ -4,7 +4,10 @@ from firebase_admin.messaging import UnregisteredError
 from notifications.models import Device
 import os
 
-cred_path = os.path.join(os.path.dirname(__file__), "service-account.json")
+if DEBUG is True:
+    cred_path = os.path.join(os.path.dirname(__file__), "service-account.json")
+else:
+    cred_path = json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
 
 if not firebase_admin._apps:
     cred = credentials.Certificate(cred_path)
