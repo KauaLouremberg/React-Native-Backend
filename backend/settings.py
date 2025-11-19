@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'autenticacao',
     'perfil',
-    'amparado'
+    'amparado',
+    'notificacoes'
 ]
 
 
