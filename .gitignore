@@ -2,3 +2,5 @@
 __pycache__/
 /__pycache__
 /__pycache__/
+service-account.json
+firebase/service-account.json
