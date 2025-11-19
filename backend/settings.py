@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'autenticacao',
     'perfil',
     'amparado',
-    'notificacoes'
+    'notifications'
 ]
 
 
