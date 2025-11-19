@@ -1,6 +1,10 @@
+import json
+
 import firebase_admin
 from firebase_admin import credentials, messaging
 from firebase_admin.messaging import UnregisteredError
+
+from backend.settings import DEBUG
 from notifications.models import Device
 import os
 
