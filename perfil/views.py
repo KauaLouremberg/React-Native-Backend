@@ -29,7 +29,6 @@ class PerfilViewSet(APIView):
         if data.get("tipo_conta") == "A":
             responsavel = Responsavel.objects.get(perfil=perfil)
             if responsavel:
-                print("caiu aqui")
                 pass
             else:
                 Responsavel.objects.create(perfil=perfil)
@@ -61,10 +60,13 @@ class ResponsavelViewSet(APIView):
                 return Response({"error": "Esse amparado já está vinculado a outro responsável."},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            responsavel = Responsavel.objects.get(perfil__usuario__user=user)
+            responsavel = Responsavel.objects.get(perfil__usuario=user)
 
             responsavel.amparado = amparado
             responsavel.save()
+
+            amparado.responsavel = responsavel
+            amparado.save()
 
             return Response({"success": "Relacao criada com sucesso!"}, status=status.HTTP_200_OK)
 
