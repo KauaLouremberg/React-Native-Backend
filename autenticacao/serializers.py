@@ -1,3 +1,5 @@
+from rest_framework.response import Response
+
 from .models import Usuario
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
@@ -8,11 +10,12 @@ User = get_user_model()
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'perfil', 'nome', 'is_amparado']
+        fields = ['id', 'nome', 'is_amparado']
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
+
         data['username'] = self.user.username
         data['email'] = self.user.email
         data['is_superuser'] = self.user.is_superuser
@@ -29,10 +32,13 @@ class UserCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         is_super = validated_data.pop("is_superuser")
 
-        if is_super:
-            user = User.objects.create_superuser(**validated_data)
-        else:
-            user = User.objects.create_user(**validated_data)
+        try:
+            if is_super:
+                user = User.objects.create_superuser(**validated_data)
+            else:
+                user = User.objects.create_user(**validated_data)
+        except:
+            return Response({"Erro!": "Ja existe um usuario registrado!"})
 
         return user
 

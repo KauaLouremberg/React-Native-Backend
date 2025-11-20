@@ -26,6 +26,8 @@ class UsuarioView(APIView):
         return Response(perfil_update)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+
     serializer_class = CustomTokenObtainPairSerializer
 
 class CreateUserView(APIView):
