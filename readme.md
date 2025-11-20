@@ -1,24 +1,34 @@
 
-````
-Crie o ambiente virtual e rode:
-pip install -r requirements.txt
+---
 
-````
+# Inicializando
 
-````
-Dependencias
-
-sudo apt update
-sudo apt install postgresql postgresql-contrib
+### 
+```md
+ - Crie o Ambiente Virtual e rode os comandos a seguir
 ````
 
+---
+
+# Comandos
+
+### 
+```md
+ - Baixar requisitos - pip install -r requirements.txt
+ - sudo apt update
+ - sudo apt install postgresql postgresql-contrib
+ - python manage.py migrate
 ````
-Informacoes adicionais
 
-Nome do banco: ampdb
+# Como rodar
 
-python manage.py migrate
+Uvicorn Necessario para uso de websocket (Obrigatorio!)
+```md
+ - uvicorn backend.asgi:application --reload --host 0.0.0.0 --port 8000
+````
 
-Criar usuario:
+# Criar SuperUser
 
-python manage.py createsuperuser;
+```md
+ - python manage.py createsuperuser;
+````

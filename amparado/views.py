@@ -20,10 +20,14 @@ class AmparadoView(APIView):
 
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
-            Usuario.objects.create(
+            usuario = Usuario.objects.create(
                 user=user,
                 nome=user.username,
                 is_amparado=True
+            )
+
+            Amparado.objects.create(
+                usuario=usuario,
             )
 
             return Response({"Sucesso!": "Amparado Criado com Sucesso!"})
@@ -40,7 +44,7 @@ class AmparadoCodigoView(APIView):
         amparado.codigo_convite = id
         amparado.save()
 
-        return Response({"ID:": f"{id}"})
+        return Response(id)
 
 
 
