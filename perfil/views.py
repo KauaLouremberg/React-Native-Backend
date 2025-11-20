@@ -26,11 +26,10 @@ class PerfilViewSet(APIView):
 
         perfil, _ = Perfil.objects.get_or_create(usuario=user)
 
-        if data.get("tipo_conta") == "A":
-            responsavel = Responsavel.objects.get(perfil=perfil)
-            if responsavel:
-                pass
-            else:
+        if not user.is_amparado:
+            try:
+                Responsavel.objects.get(perfil=perfil)
+            except:
                 Responsavel.objects.create(perfil=perfil)
 
         serializer = PerfilSerializer(perfil, data=data, partial=True)
