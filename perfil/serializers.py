@@ -5,13 +5,13 @@ from .models import Perfil, Endereco, Responsavel
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perfil
-        fields = ['id', 'cpf', 'data_nascimento', 'sexo', 'tipo_conta']
+        fields = ['id', 'cpf', 'data_nascimento', 'sexo', 'tipo_conta', 'apelido']
         read_only_fields = ['usuario']
 
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
-        fields = ['id', 'cidade', 'bairro', 'estado']
+        fields = ['id', 'cidade', 'bairro', 'estado', 'cep', 'rua']
 
 class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
