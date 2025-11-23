@@ -11,7 +11,7 @@ class PerfilSerializer(serializers.ModelSerializer):
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Endereco
-        fields = ['id', 'cidade', 'bairro', 'estado', 'cep', 'rua']
+        fields = ['id', 'cidade', 'bairro', 'estado', 'cep', 'rua', 'numero']
 
 class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
