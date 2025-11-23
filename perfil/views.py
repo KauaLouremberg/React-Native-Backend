@@ -5,8 +5,8 @@ from rest_framework import status
 
 from amparado.models import Amparado
 from autenticacao.models import Usuario
-from .models import Perfil, Responsavel
-from .serializers import PerfilSerializer, ResponsavelSerializer
+from .models import Perfil, Responsavel, Endereco
+from .serializers import PerfilSerializer, ResponsavelSerializer, EnderecoSerializer
 
 
 class PerfilViewSet(APIView):
@@ -42,6 +42,28 @@ class PerfilViewSet(APIView):
 
 class EnderecoViewSet(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = Usuario.objects.get(user=request.user)
+        perfil = Perfil.objects.get(usuario=user)
+        endereco, _ = Endereco.objects.get_or_create(perfil=perfil)
+        serializer = EnderecoSerializer(endereco)
+        return Response(serializer.data)
+
+    def post(self, request):
+        user = Usuario.objects.get(user=request.user)
+        perfil = Perfil.objects.get(usuario=user)
+
+        data = request.data
+        endereco, _ = Endereco.objects.get_or_create(perfil=perfil)
+
+        serializer = EnderecoSerializer(endereco, perfil=perfil, data=data)
+
+        if serializer.is_valid():
+            serializer.save(usuario=user)
+
+            return Response({"Sucesso!": "Valores salvos com sucesso!"})
+        return Response({"Erro!": "Algo deu errado!"})
 
 class ResponsavelViewSet(APIView):
     permission_classes = [IsAuthenticated]
