@@ -57,7 +57,7 @@ class EnderecoViewSet(APIView):
         data = request.data
         endereco, _ = Endereco.objects.get_or_create(perfil=perfil)
 
-        serializer = EnderecoSerializer(endereco, perfil=perfil, data=data)
+        serializer = EnderecoSerializer(endereco, data=data)
 
         if serializer.is_valid():
             serializer.save(usuario=user)
@@ -93,3 +93,19 @@ class ResponsavelViewSet(APIView):
 
         except:
             return Response({"error": "Nao existe nenhum usuario com esse codigo!"})
+
+class InformationViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = Usuario.objects.get(user=request.user)
+
+        if user.is_amparado:
+            amparado = Amparado.objects.get(usuario=user)
+            responsavel = amparado.responsavel
+        else:
+            responsavel = Responsavel.objects.get(perfil__usuario=user)
+            amparado = responsavel.amparado
+
+        return Response({"amparado_id": responsavel.amparado.id, "responsavel_id": amparado.responsavel.id})
+
