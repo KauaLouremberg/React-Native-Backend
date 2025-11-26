@@ -26,6 +26,7 @@ class RegisterDevice(APIView):
             defaults={"user_device": usuario}
         )
 
+
         return Response({"status": "registered"})
 
 
