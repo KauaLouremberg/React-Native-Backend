@@ -16,6 +16,7 @@ class Perfil(models.Model):
     )
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='perfil_user')
+    apelido = models.CharField(max_length=255, blank=True, null=True)
     cpf = models.CharField(max_length=14, blank=True, null=True)
     data_nascimento = models.DateTimeField(blank=True, null=True)
     sexo = models.CharField(choices=TIPO_CHOICES, max_length=1, blank=True, null=True)
@@ -25,6 +26,7 @@ class Endereco(models.Model):
     perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name='endereco')
     estado = models.CharField(max_length=255, blank=True, null=True)
     cidade = models.CharField(max_length=255, blank=True, null=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
     bairro = models.CharField(max_length=255, blank=True, null=True)
     rua = models.CharField(max_length=255, blank=True, null=True)
     numero = models.CharField(max_length=20, blank=True, null=True)

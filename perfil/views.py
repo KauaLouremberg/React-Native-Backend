@@ -5,8 +5,8 @@ from rest_framework import status
 
 from amparado.models import Amparado
 from autenticacao.models import Usuario
-from .models import Perfil, Responsavel
-from .serializers import PerfilSerializer, ResponsavelSerializer
+from .models import Perfil, Responsavel, Endereco
+from .serializers import PerfilSerializer, ResponsavelSerializer, EnderecoSerializer
 
 
 class PerfilViewSet(APIView):
@@ -43,6 +43,28 @@ class PerfilViewSet(APIView):
 class EnderecoViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = Usuario.objects.get(user=request.user)
+        perfil = Perfil.objects.get(usuario=user)
+        endereco, _ = Endereco.objects.get_or_create(perfil=perfil)
+        serializer = EnderecoSerializer(endereco)
+        return Response(serializer.data)
+
+    def post(self, request):
+        user = Usuario.objects.get(user=request.user)
+        perfil = Perfil.objects.get(usuario=user)
+
+        data = request.data
+        endereco, _ = Endereco.objects.get_or_create(perfil=perfil)
+
+        serializer = EnderecoSerializer(endereco, data=data)
+
+        if serializer.is_valid():
+            serializer.save(usuario=user)
+
+            return Response({"Sucesso!": "Valores salvos com sucesso!"})
+        return Response({"Erro!": "Algo deu errado!"})
+
 class ResponsavelViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -71,3 +93,19 @@ class ResponsavelViewSet(APIView):
 
         except:
             return Response({"error": "Nao existe nenhum usuario com esse codigo!"})
+
+class InformationViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = Usuario.objects.get(user=request.user)
+
+        if user.is_amparado:
+            amparado = Amparado.objects.get(usuario=user)
+            responsavel = amparado.responsavel
+        else:
+            responsavel = Responsavel.objects.get(perfil__usuario=user)
+            amparado = responsavel.amparado
+
+        return Response({"amparado_id": responsavel.amparado.id, "responsavel_id": amparado.responsavel.id})
+
