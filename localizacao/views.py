@@ -33,8 +33,6 @@ class LocalizacaoView(APIView):
                 longitude = data.get('longitude')
                 timestamp = timezone.now().isoformat()
 
-                print('chegou aqui')
-
                 _send_websocket('recebe_localizacao', responsavel.id, {
                     'responsavel_id': responsavel.id,
                     'latitude': latitude,
