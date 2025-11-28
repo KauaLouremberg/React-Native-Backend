@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from perfil.models import Perfil
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -14,8 +15,12 @@ class UsuarioView(APIView):
         usuario = Usuario.objects.get(user=request.user)
         serializer = UsuarioSerializer(usuario)
 
-        if request.query_params.get("perfil"):
-            return Response(usuario.perfil)
+        if Perfil.objects.filter(usuario=usuario).exists():
+            data = {
+                "data": serializer.data,
+                "has_perfil": True
+            }
+            return Response(data)
         return Response(serializer.data)
 
     def post(self, request):
