@@ -103,9 +103,15 @@ class InformationViewSet(APIView):
         if user.is_amparado:
             amparado = Amparado.objects.get(usuario=user)
             responsavel = amparado.responsavel
+
+            if not responsavel:
+                return Response({"Erro!": "Usuario nao possui responsavel vinculado!"}, status=status.HTTP_403_FORBIDDEN)
         else:
             responsavel = Responsavel.objects.get(perfil__usuario=user)
             amparado = responsavel.amparado
+
+            if not amparado:
+                return Response({"Erro!": "Usuario nao possui amparado vinculado!"})
 
         return Response({"amparado_id": responsavel.amparado.id, "responsavel_id": amparado.responsavel.id})
 
