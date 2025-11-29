@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'perfil',
     'amparado',
     'notifications',
-    'channels'
+    'channels',
+    'localizacao'
 ]
 
 
