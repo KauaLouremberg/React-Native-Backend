@@ -98,20 +98,20 @@ class InformationViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = Usuario.objects.get(user=request.user)
+        usuario = Usuario.objects.get(user=request.user)
 
-        if user.is_amparado:
-            amparado = Amparado.objects.get(usuario=user)
+        if usuario.is_amparado:
+            amparado = Amparado.objects.get(usuario=usuario)
             responsavel = amparado.responsavel
 
             if not responsavel:
-                return Response({"Erro!": "Usuario nao possui responsavel vinculado!"}, status=status.HTTP_403_FORBIDDEN)
+                return Response({"Erro!": "Usuario nao possui responsavel vinculado!"}, status=status.HTTP_200_OK)
         else:
-            responsavel = Responsavel.objects.get(perfil__usuario=user)
+            responsavel = Responsavel.objects.get(perfil__usuario=usuario)
             amparado = responsavel.amparado
 
             if not amparado:
-                return Response({"Erro!": "Usuario nao possui amparado vinculado!"})
+                return Response({"Erro!": "Usuario nao possui amparado vinculado!"}, status=status.HTTP_200_OK)
 
         return Response({"amparado_id": responsavel.amparado.id, "responsavel_id": amparado.responsavel.id})
 
