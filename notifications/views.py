@@ -1,3 +1,5 @@
+import time
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +28,7 @@ class RegisterDevice(APIView):
             defaults={"user_device": usuario}
         )
 
+
         return Response({"status": "registered"})
 
 
@@ -40,7 +43,9 @@ class SendNotification(APIView):
 
         devices = Device.objects.filter(user_device=usuario_alvo)
 
+        time.sleep(2)
+
         for d in devices:
-            send_push(d.fcm_token, "Chamado Amparo", "Alguém apertou o botão!")
+            send_push(d.fcm_token, "SOS", "O botao de SOS foi disparado pelo Amparado!")
 
         return Response({"status": "sent"})

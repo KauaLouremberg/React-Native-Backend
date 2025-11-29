@@ -17,13 +17,20 @@ if not firebase_admin._apps:
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
 
-def send_push(token, title, body):
+def send_push(token, title, body, data=None):
+    if data is None:
+        data = {}
+
     message = messaging.Message(
         token=token,
+
         notification=messaging.Notification(
             title=title,
             body=body,
         ),
+
+        data={str(k): str(v) for k, v in data.items()},
+
         android=messaging.AndroidConfig(
             priority="high",
             notification=messaging.AndroidNotification(
@@ -39,3 +46,4 @@ def send_push(token, title, body):
     except UnregisteredError:
         Device.objects.filter(fcm_token=token).delete()
         return "TOKEN_INVALIDO"
+

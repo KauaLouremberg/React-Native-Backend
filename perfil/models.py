@@ -35,4 +35,3 @@ class Responsavel(models.Model):
     amparado = models.ForeignKey('amparado.Amparado', on_delete=models.CASCADE, related_name="amparado_responsavel", null=True)
     perfil = models.ForeignKey(Perfil, on_delete=models.CASCADE, related_name="perfil_responsavel")
 
-
