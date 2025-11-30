@@ -1,24 +1,22 @@
 import traceback
 
-from OpenSSL.rand import status
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.views import APIView
 
-from amparado.models import Amparado
 from autenticacao.models import Usuario
-from firebase.fcm import send_push
-from notifications.models import Device
-from perfil.models import Perfil, Responsavel
 from websocket.consumers import _send_websocket
-from rest_framework import generics, permissions
+from rest_framework import generics
 from .models import AreaSegura
 from .serializers import AreaSeguraSerializer
-from perfil.models import Responsavel
 from amparado.models import Amparado
 from utils import get_responsavel_from_user, enviar_notificacao_responsavel
+
+from rest_framework import viewsets
+from .models import Marcadores
+from .serializers import MarcadoresSerializer
 
 
 def dentro_do_raio(lat1, lon1, lat2, lon2, raio_metros):
@@ -134,6 +132,74 @@ class LocalizacaoAmparadoView(APIView):
             print(e)
             traceback.print_exc()
             return Response({"detail": "Erro interno"}, status=500)
+
+class MarcadoresView(generics.ListCreateAPIView):
+    serializer_class = MarcadoresSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if usuario.is_amparado:
+            amparado = Amparado.objects.get(usuario=usuario)
+
+        else:
+            responsavel = get_responsavel_from_user(self.request.user)
+            amparado = responsavel.amparado
+
+            if not amparado:
+                raise PermissionError("Responsável não possui amparado vinculado.")
+
+        return Marcadores.objects.filter(amparado_markers=amparado)
+
+    def perform_create(self, serializer):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if not usuario.is_amparado:
+            return Response({"Erro!": "Usuario Responsavel, nao pode criar um marker!"}, status=HTTP_400_BAD_REQUEST)
+
+        try:
+            amparado = Amparado.objects.get(usuario=usuario)
+        except:
+            raise PermissionError("Usuário não possui conta Amparado.")
+
+        serializer.save(amparado_markers=amparado)
+
+        return Response({"Successo!": "Marcador criado com sucesso!"}, status=HTTP_201_CREATED)
+
+class MarcadorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MarcadoresSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = "id"
+
+    def get_queryset(self):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if usuario.is_amparado:
+            amparado = Amparado.objects.get(usuario=usuario)
+        else:
+            responsavel = get_responsavel_from_user(self.request.user)
+            amparado = responsavel.amparado
+            if not amparado:
+                raise PermissionError("Responsável não possui amparado vinculado.")
+
+        return Marcadores.objects.filter(amparado_markers=amparado)
+
+    def perform_update(self, serializer):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if not usuario.is_amparado:
+            raise PermissionError("Responsável não pode editar markers.")
+
+        return super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if not usuario.is_amparado:
+            raise PermissionError("Responsável não pode deletar markers.")
+
+        return super().perform_destroy(instance)
 
 
 
