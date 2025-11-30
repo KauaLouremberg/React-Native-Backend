@@ -95,31 +95,23 @@ class LocalizacaoAmparadoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print("\n========== LOCALIZAÇÃO AMPARADO ==========")
-
         try:
             user = request.user
-            print(f"[1] Requisição recebida de user.id={user.id}, username={user.username}")
 
             try:
                 amparado = Amparado.objects.get(usuario__user=user)
-                print(f"[2] Amparado encontrado: id={amparado.id}, nome={amparado.usuario.nome}")
             except Amparado.DoesNotExist:
                 print("[ERRO] Usuário tentou enviar localização mas não é amparado!")
                 return Response({"detail": "Somente amparados enviam localização."}, status=403)
 
             responsavel = amparado.responsavel
-            print(f"[3] Responsável ligado ao amparado: id={responsavel.id}")
 
             lat = float(request.data.get("latitude"))
             lon = float(request.data.get("longitude"))
-            print(f"[4] Localização recebida: lat={lat}, lon={lon}")
 
             areas = AreaSegura.objects.filter(responsavel_area=responsavel)
-            print(f"[5] Áreas encontradas: {areas.count()}")
 
             for area in areas:
-                print(f"[5.1] Checando área id={area.id}, nome={area.nome}")
 
                 dentro = dentro_do_raio(
                     lat1=area.latitude,
@@ -128,21 +120,17 @@ class LocalizacaoAmparadoView(APIView):
                     lon2=lon,
                     raio_metros=area.raio
                 )
-                print(f"[5.2] Está dentro da área? {dentro}")
 
                 if not dentro:
-                    print("[6] Amparado saiu da área → enviando notificação!")
                     enviar_notificacao_responsavel(
                         responsavel,
                         mensagem=f"O amparado {amparado.usuario.nome} saiu da área '{area.nome}'.",
                         area_id=area.id
                     )
 
-            print("========== FIM LOCALIZAÇÃO ==========\n")
             return Response({"status": "ok"})
 
         except Exception as e:
-            print("\n=== ERRO GERAL NA VIEW LocalizacaoAmparadoView ===")
             print(e)
             traceback.print_exc()
             return Response({"detail": "Erro interno"}, status=500)
