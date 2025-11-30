@@ -21,7 +21,7 @@ def get_responsavel_from_user(user):
 
 def enviar_notificacao_responsavel(responsavel, mensagem, area_id=None):
     usuario = responsavel.usuario
-    device = Device.objects.get(usuario=usuario)
+    device = Device.objects.get(user_device=usuario)
 
     token = getattr(device, "fcm_token", None)
 
