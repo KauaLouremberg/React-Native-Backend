@@ -33,11 +33,10 @@ class AreaSeguraSerializer(serializers.ModelSerializer):
         usuario = Usuario.objects.get(user=user)
         perfil = Perfil.objects.get(usuario=usuario)
 
-        try:
-            responsavel = Responsavel.objects.get(perfil=perfil)
-        except:
-            return Response({'Erro!': 'Usuario nao e um responsavel!'})
+        if usuario.is_amparado:
+            return Response({'Erro!': "Usuario e um amparado!"})
 
+        responsavel = Responsavel.objects.get(perfil=perfil)
         validated_data["responsavel_area"] = responsavel
 
         return AreaSegura.objects.create(**validated_data)
