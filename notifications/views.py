@@ -38,11 +38,8 @@ class SendNotification(APIView):
 
     def post(self, request):
         target_id = request.data.get("target_user_id")
-
         usuario_alvo = get_object_or_404(Usuario, id=target_id)
-
         devices = Device.objects.filter(user_device=usuario_alvo)
-
         time.sleep(2)
 
         for d in devices:

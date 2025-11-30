@@ -1,4 +1,5 @@
 from firebase.fcm import send_push
+from notifications.models import Device
 from perfil.models import Responsavel
 from amparado.models import Amparado
 
@@ -19,7 +20,10 @@ def get_responsavel_from_user(user):
     return None
 
 def enviar_notificacao_responsavel(responsavel, mensagem, area_id=None):
-    token = getattr(responsavel, "fcm_token", None)
+    usuario = responsavel.usuario
+    device = Device.objects.get(usuario=usuario)
+
+    token = getattr(device, "fcm_token", None)
 
     if not token:
         print("Responsável sem token FCM.")
