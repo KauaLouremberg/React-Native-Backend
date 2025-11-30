@@ -1,6 +1,10 @@
+import traceback
+
+from OpenSSL.rand import status
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
 
 from amparado.models import Amparado
@@ -79,44 +83,70 @@ class AreaSeguraListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         responsavel = get_responsavel_from_user(self.request.user)
+        usuario = Usuario.objects.get(user=self.request.user)
+        if usuario.is_amparado:
+            return Response({"Erro!": "Usuario amparado, nao pode criar uma area!"}, status=HTTP_400_BAD_REQUEST)
+
         serializer.save(responsavel_area=responsavel)
 
+        return Response({"Successo!": "Area criada com sucesso!"}, status=HTTP_201_CREATED)
 
 class LocalizacaoAmparadoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user
+        print("\n========== LOCALIZAÇÃO AMPARADO ==========")
 
         try:
-            amparado = Amparado.objects.get(usuario__user=user)
-        except Amparado.DoesNotExist:
-            return Response({"detail": "Somente amparados enviam localização."}, status=403)
+            user = request.user
+            print(f"[1] Requisição recebida de user.id={user.id}, username={user.username}")
 
-        responsavel = amparado.responsavel
+            try:
+                amparado = Amparado.objects.get(usuario__user=user)
+                print(f"[2] Amparado encontrado: id={amparado.id}, nome={amparado.usuario.nome}")
+            except Amparado.DoesNotExist:
+                print("[ERRO] Usuário tentou enviar localização mas não é amparado!")
+                return Response({"detail": "Somente amparados enviam localização."}, status=403)
 
-        lat = float(request.data["latitude"])
-        lon = float(request.data["longitude"])
+            responsavel = amparado.responsavel
+            print(f"[3] Responsável ligado ao amparado: id={responsavel.id}")
 
-        areas = AreaSegura.objects.filter(responsavel_area=responsavel)
+            lat = float(request.data.get("latitude"))
+            lon = float(request.data.get("longitude"))
+            print(f"[4] Localização recebida: lat={lat}, lon={lon}")
 
-        for area in areas:
-            dentro = dentro_do_raio(
-                lat1=area.latitude,
-                lon1=area.longitude,
-                lat2=lat,
-                lon2=lon,
-                raio_metros=area.raio
-            )
+            areas = AreaSegura.objects.filter(responsavel_area=responsavel)
+            print(f"[5] Áreas encontradas: {areas.count()}")
 
-            if not dentro:
-                enviar_notificacao_responsavel(
-                    responsavel,
-                    mensagem=f"O amparado {amparado.usuario.nome} saiu da área '{area.nome}'.",
-                    area_id=area.id
+            for area in areas:
+                print(f"[5.1] Checando área id={area.id}, nome={area.nome}")
+
+                dentro = dentro_do_raio(
+                    lat1=area.latitude,
+                    lon1=area.longitude,
+                    lat2=lat,
+                    lon2=lon,
+                    raio_metros=area.raio
                 )
+                print(f"[5.2] Está dentro da área? {dentro}")
 
-        return Response({"status": "ok"})
+                if not dentro:
+                    print("[6] Amparado saiu da área → enviando notificação!")
+                    enviar_notificacao_responsavel(
+                        responsavel,
+                        mensagem=f"O amparado {amparado.usuario.nome} saiu da área '{area.nome}'.",
+                        area_id=area.id
+                    )
+
+            print("========== FIM LOCALIZAÇÃO ==========\n")
+            return Response({"status": "ok"})
+
+        except Exception as e:
+            print("\n=== ERRO GERAL NA VIEW LocalizacaoAmparadoView ===")
+            print(e)
+            traceback.print_exc()
+            return Response({"detail": "Erro interno"}, status=500)
+
 
 
 
