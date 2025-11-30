@@ -101,17 +101,29 @@ class InformationViewSet(APIView):
         usuario = Usuario.objects.get(user=request.user)
 
         if usuario.is_amparado:
-            amparado = Amparado.objects.get(usuario=usuario)
-            responsavel = amparado.responsavel
+            try:
+                amparado = Amparado.objects.get(usuario=usuario)
+                responsavel = amparado.responsavel
+
+            except:
+                return Response({"Erro!": "Amparado nao encontrado"}, status=status.HTTP_400_BAD_REQUEST)
 
             if not responsavel:
-                return Response({"Erro!": "Usuario nao possui responsavel vinculado!"}, status=status.HTTP_200_OK)
+                return Response({"Erro!": "Usuario nao possui responsavel vinculado!"}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            responsavel = Responsavel.objects.get(perfil__usuario=usuario)
-            amparado = responsavel.amparado
+            try:
+                responsavel = Responsavel.objects.get(perfil__usuario=usuario)
+                amparado = responsavel.amparado
+
+            except:
+                return Response({"Erro!": "Responsavel nao encontrado"}, status=status.HTTP_400_BAD_REQUEST)
 
             if not amparado:
-                return Response({"Erro!": "Usuario nao possui amparado vinculado!"}, status=status.HTTP_200_OK)
+                return Response({"Erro!": "Usuario nao possui amparado vinculado!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"amparado_id": responsavel.amparado.id, "responsavel_id": amparado.responsavel.id})
+
+        return Response({"amparado_id": responsavel.amparado.id,
+                         "amparado_name": responsavel.amparado.usuario.nome,
+                         "responsavel_id": amparado.responsavel.id,
+                         "responsavel_name": amparado.responsavel.perfil.usuario.nome})
 
