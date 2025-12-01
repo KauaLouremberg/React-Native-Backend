@@ -22,6 +22,7 @@ class AreaSeguraSerializer(serializers.ModelSerializer):
             "longitude",
             "raio",
             "nome",
+            "criado_em"
         ]
         read_only_fields = ["latitude", "longitude", "raio"]
 
