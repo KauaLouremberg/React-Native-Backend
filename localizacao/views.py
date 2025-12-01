@@ -97,7 +97,7 @@ class AreaSeguraDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         usuario = Usuario.objects.get(user=self.request.user)
 
-        if not usuario.is_amparado:
+        if usuario.is_amparado:
             amparado = Amparado.objects.get(usuario=usuario)
             responsavel = amparado.responsavel
 
