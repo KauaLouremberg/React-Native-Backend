@@ -39,6 +39,15 @@ class AmparadoCodigoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        if self.request.query_params.get('verify'):
+            try:
+                amparado = Amparado.objects.get(codigo_convite=self.request.query_params.get('verify'))
+
+                if amparado:
+                    return Response({"Sucesso"}, status=HTTP_200_OK)
+            except:
+                return Response({"Erro"}, status=HTTP_400_BAD_REQUEST)
+
         if self.request.query_params.get('code'):
             amparado = Amparado.objects.get(usuario__user__id=request.user.id)
             codigo = amparado.codigo_convite
@@ -47,7 +56,7 @@ class AmparadoCodigoView(APIView):
                 return Response({"Erro!": "Amparado nao tem codigo gerado!"}, status=HTTP_400_BAD_REQUEST)
             return Response(codigo, status=HTTP_200_OK)
 
-        id = str(uuid.uuid4())[:8].upper()
+        id = str(uuid.uuid4())[:6].upper()
 
         amparado = Amparado.objects.get(usuario__user__id=request.user.id)
         amparado.codigo_convite = id
