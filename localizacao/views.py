@@ -89,6 +89,45 @@ class AreaSeguraListCreateView(generics.ListCreateAPIView):
 
         return Response({"Successo!": "Area criada com sucesso!"}, status=HTTP_201_CREATED)
 
+class AreaSeguraDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AreaSeguraSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_url_kwarg = "id"
+
+    def get_queryset(self):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if not usuario.is_amparado:
+            amparado = Amparado.objects.get(usuario=usuario)
+            responsavel = amparado.responsavel
+
+            if not responsavel:
+                raise PermissionError("Usuario nao e vinculado a um responsavel")
+        else:
+            responsavel = get_responsavel_from_user(self.request.user)
+            amparado = responsavel.amparado
+
+            if not amparado:
+                raise PermissionError("Responsável não possui amparado vinculado.")
+
+        return AreaSegura.objects.filter(responsavel_area=responsavel)
+
+    def perform_update(self, serializer):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if usuario.is_amparado:
+            raise PermissionError("Amparado não pode editar areas.")
+
+        return super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        usuario = Usuario.objects.get(user=self.request.user)
+
+        if usuario.is_amparado:
+            raise PermissionError("Amparado não pode excluir areas.")
+
+        return super().perform_destroy(instance)
+
 class LocalizacaoAmparadoView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -194,11 +233,6 @@ class MarcadorDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().perform_update(serializer)
 
     def perform_destroy(self, instance):
-        usuario = Usuario.objects.get(user=self.request.user)
-
-        if not usuario.is_amparado:
-            raise PermissionError("Responsável não pode deletar markers.")
-
         return super().perform_destroy(instance)
 
 
